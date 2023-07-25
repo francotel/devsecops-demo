@@ -153,36 +153,36 @@ resource "aws_s3_object" "object" {
 # }
 
 
-# #######   CODEBUILD RESOURCES   ######
-module "codebuild_app" {
-  source          = "./modules/codebuild"
-  project         = var.project
-  aws_account_id  = var.aws_account_id
-  region          = var.aws_region
-  env             = var.env
-  kms_id_artifact = module.kms.key_arn
-  build_timeout   = 60
-  compute_type    = "BUILD_GENERAL1_SMALL"
-  compute_image   = "al2/standard/4.0"
-  compute_so      = "LINUX_CONTAINER"
-  buildspec_file  = "buildspec.yaml"
-  s3_artifact_arn = module.s3_bucket_artifact.s3_bucket_arn
-  artifacts       = "CODEPIPELINE"
-  type_artifact   = "CODEPIPELINE"
+# # #######   CODEBUILD RESOURCES   ######
+# module "codebuild_app" {
+#   source          = "./modules/codebuild"
+#   project         = var.project
+#   aws_account_id  = var.aws_account_id
+#   region          = var.aws_region
+#   env             = var.env
+#   kms_id_artifact = module.kms.key_arn
+#   build_timeout   = 60
+#   compute_type    = "BUILD_GENERAL1_SMALL"
+#   compute_image   = "al2/standard/4.0"
+#   compute_so      = "LINUX_CONTAINER"
+#   buildspec_file  = "buildspec.yaml"
+#   s3_artifact_arn = module.s3_bucket_artifact.s3_bucket_arn
+#   artifacts       = "CODEPIPELINE"
+#   type_artifact   = "CODEPIPELINE"
 
-  # branch_name    = "qa"
+#   # branch_name    = "qa"
 
-  ## ADD ENV VARIABLES TO CODEBUILD FROM TFVARS  ##
-  env_codebuild_tfvars = var.env_codebuild_vars
-  env_codebuild_resource_input = {
-    ENV_CB_ECR_URL      = module.ecr.repository_url
-    ENV_CB_ENV          = var.env
-    ENV_CB_S3_ARTIFACTS = module.s3_bucket_artifact.s3_bucket_id
-  }
+#   ## ADD ENV VARIABLES TO CODEBUILD FROM TFVARS  ##
+#   env_codebuild_tfvars = var.env_codebuild_vars
+#   env_codebuild_resource_input = {
+#     ENV_CB_ECR_URL      = module.ecr.repository_url
+#     ENV_CB_ENV          = var.env
+#     ENV_CB_S3_ARTIFACTS = module.s3_bucket_artifact.s3_bucket_id
+#   }
 
-  retention_in_days = 30
+#   retention_in_days = 30
 
-}
+# }
 
 # #######   CODEPIPELINE RESOURCES   ######
 # module "codepipeline_app" {
