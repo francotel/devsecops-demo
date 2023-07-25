@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  selector:
+    matchLabels:
+      run: app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: app
+    spec:
+      containers:
+      - name: app
+        image: "962542038213.dkr.ecr.us-east-1.amazonaws.com/ecr-app-devsu-test:34"
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "128Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  labels:
+    run: app
+spec:
+  ports:
+  - port: 8000
+  selector:
+    run: app

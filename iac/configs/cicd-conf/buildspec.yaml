@@ -1,0 +1,65 @@
+version: 0.2
+env:
+  secrets-manager:
+    LOGIN: $ENV_CB_SONAR:$ENV_CB_SONAR_TOKEN
+    HOST: $ENV_CB_SONAR:$ENV_CB_SONAR_HOST
+    Organization: $ENV_CB_SONAR:$ENV_CB_SONAR_ORGANIZATION
+    Project: $ENV_CB_SONAR:$ENV_CB_SONAR_PROJECT
+    Snyk_Token: $ENV_CB_SNYK:$ENV_CB_SNYK_TOKEN
+    Snyk_Org: $ENV_CB_SNYK:$ENV_CB_SNYK_ORG
+    
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - apt-get update
+      - apt-get install -y jq
+      - aws --version
+      - wget -nv https://downloads.apache.org/maven/maven-3/3.9.3/binaries/apache-maven-3.9.3-bin.tar.gz
+      - tar xzf apache-maven-3.9.3-bin.tar.gz
+      - ln -s apache-maven-3.9.3 maven
+      - wget -nv https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+      - unzip ./sonar-scanner-cli-3.3.0.1492-linux.zip
+      - export PATH=$PATH:/sonar-scanner-3.3.0.1492-linux/bin/
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ENV_CB_ECR_URL
+  build:
+    commands:
+      - cd demo-devops-java
+      - echo "Unit testing.."
+      - mvn clean test    
+      - mvn -ntp validate
+      - mvn -ntp compile
+      - mvn -ntp package -Dmaven.test.skip=true
+      - mvn sonar:sonar -Dsonar.login=$LOGIN -Dsonar.host.url=$HOST -Dsonar.projectKey=$Project -Dsonar.organization=$Organization -Pcoverage
+      - sleep 5
+      - curl https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project > result.json
+      - cat result.json
+      - if [ $(jq -r '.projectStatus.status' result.json) = ERROR ] ; then $CODEBUILD_BUILD_SUCCEEDING -eq 0 ;fi
+      - echo Build completed on `date`
+      - aws s3 cp s3://$ENV_CB_S3_ARTIFACTS/cicd-conf/Dockerfile Dockerfile 
+      - docker build -t $ENV_CB_DOCKER_IMAGE:$CODEBUILD_BUILD_NUMBER .
+      - docker tag $ENV_CB_DOCKER_IMAGE:$CODEBUILD_BUILD_NUMBER $ENV_CB_ECR_URL:$CODEBUILD_BUILD_NUMBER
+      # Scan Docker image with Snyk
+      # Install Snyk
+      - echo Install Snyk
+      - npm install snyk -g
+      # Snyk auth
+      - snyk --version
+      - echo $LOGIN
+      - echo $Snyk_Token
+      - snyk config set api=$Snyk_Token
+      - docker images
+      - snyk container test $ENV_CB_ECR_URL:34 --org=$Snyk_Org --report || true
+      - snyk container monitor $ENV_CB_ECR_URL:34
+      - echo Pushing the Docker image...
+      - docker push $ENV_CB_ECR_URL:$CODEBUILD_BUILD_NUMBER
+  post_build:
+    commands:
+      - aws s3 cp s3://$ENV_CB_S3_ARTIFACTS/manifests . --recursive
+      - ls -la
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+      - kubectl apply -f deployment.yml
+      - kubectl apply -f hpa.yml
