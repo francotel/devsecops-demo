@@ -1,0 +1,11 @@
+Verificar la lista de versiones de express:
+npm view express versions --json
+
+
+running server node app
+npm ci | npm clean-install
+
+documentation docker node app: https://nodejs.org/en/docs/guides/nodejs-docker-webapp
+
+build docker image
+docker build . -t francotel/node-web-app 

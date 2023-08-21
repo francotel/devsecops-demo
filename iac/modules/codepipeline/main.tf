@@ -52,9 +52,10 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["SourceArtifact"]
 
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.github.arn
-        FullRepositoryId = "francotel/devsu-test"
-        BranchName       = "main"
+        ConnectionArn        = aws_codestarconnections_connection.github.arn
+        FullRepositoryId     = var.repository_name
+        BranchName           = var.repository_branch
+        OutputArtifactFormat = "CODE_ZIP"
       }
     }
   }

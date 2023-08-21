@@ -24,6 +24,13 @@ variable "kms_id_artifact" {
 
 variable "project_build" {
 }
+
+variable "repository_name" {
+}
+
+variable "repository_branch" {
+}
+
 # # variable "full_repository_id" {
 # # }
 # # variable "tags" {

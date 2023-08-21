@@ -44,7 +44,7 @@ resource "aws_codebuild_project" "build" {
     }
 
     dynamic "environment_variable" {
-      for_each = var.env_codebuild_vars
+      for_each = var.env_codebuild_tfvars
       content {
         name  = environment_variable.key
         value = environment_variable.value
