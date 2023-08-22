@@ -1,3 +1,11 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+locals {
+  aws_account_id = data.aws_caller_identity.current.account_id
+  aws_region     = data.aws_region.current.name
+}
+
 module "kms" {
   source = "terraform-aws-modules/kms/aws"
 
@@ -79,7 +87,7 @@ module "ecr" {
 module "s3_bucket_artifact" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket                                = "s3-artifacts-${var.project}-${var.aws_region}-${var.env}"
+  bucket                                = "s3-artifacts-${var.project}-${local.aws_region}-${var.env}"
   attach_deny_insecure_transport_policy = true
   attach_require_latest_tls_policy      = true
 
@@ -155,8 +163,8 @@ resource "aws_s3_object" "object" {
 module "codebuild_app" {
   source          = "./modules/codebuild"
   project         = var.project
-  aws_account_id  = var.aws_account_id
-  region          = var.aws_region
+  aws_account_id  = local.aws_account_id
+  region          = local.aws_region
   env             = var.env
   kms_id_artifact = module.kms.key_arn
   build_timeout   = 60
@@ -183,13 +191,12 @@ module "codebuild_app" {
 module "codepipeline_app" {
   source            = "./modules/codepipeline"
   project           = var.project
-  aws_account_id    = var.aws_account_id
-  region            = var.aws_region
+  aws_account_id    = local.aws_account_id
+  region            = local.aws_region
   env               = var.env
   kms_id_artifact   = module.kms.key_arn
   repository_name   = "francotel/devsecops-demo"
   repository_branch = "main"
-
 
   s3_artifact_arn  = module.s3_bucket_artifact.s3_bucket_arn
   s3_artifact_name = module.s3_bucket_artifact.s3_bucket_id

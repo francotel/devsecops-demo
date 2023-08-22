@@ -1,5 +1,4 @@
 provider "aws" {
-  region  = var.aws_region
   profile = var.profile # managment account local aws credential/config profile name
 
   # Common tags for all resources that accept tags

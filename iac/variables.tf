@@ -1,13 +1,3 @@
-variable "aws_account_id" {
-  type        = string
-  description = "AWS Account ID number of the account."
-}
-
-variable "aws_region" {
-  type        = string
-  description = "The AWS region."
-}
-
 variable "env" {
   type        = string
   description = "Environment name."
