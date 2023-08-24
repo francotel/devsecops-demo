@@ -55,34 +55,6 @@ module "ecr" {
   }
 }
 
-# module "secrets-manager" {
-
-#   source = "lgallard/secrets-manager/aws"
-
-#   secrets = {
-#     secret-kv-sonarcloud = {
-#       description = "This is a key/value secret sonarcloud"
-#       kms_key_id  = module.kms.key_id
-#       secret_key_value = {
-#         Organization = "francotel"
-#         Host         = "https://sonarcloud.io"
-#         Project      = "devsu-test"
-#         sonartoken   = var.sonar_token
-#       }
-#       recovery_window_in_days = 7
-#     },
-#     secret-kv-snyk = {
-#       description = "This is a key/value secret snyk"
-#       kms_key_id  = module.kms.key_id
-#       secret_key_value = {
-#         snyk_token = var.snyk_token
-#         snyk_org   = var.snyk_org
-#       }
-#       recovery_window_in_days = 7
-#     }
-#   }
-# }
-
 ######   S3 ARTIFACT RESOURCES   ######
 module "s3_bucket_artifact" {
   source = "terraform-aws-modules/s3-bucket/aws"
