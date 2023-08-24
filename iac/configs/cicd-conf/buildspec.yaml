@@ -1,12 +1,4 @@
 version: 0.2
-env:
-  secrets-manager:
-    LOGIN: $ENV_CB_SONAR:$ENV_CB_SONAR_TOKEN
-    HOST: $ENV_CB_SONAR:$ENV_CB_SONAR_HOST
-    Organization: $ENV_CB_SONAR:$ENV_CB_SONAR_ORGANIZATION
-    Project: $ENV_CB_SONAR:$ENV_CB_SONAR_PROJECT
-    Snyk_Token: $ENV_CB_SNYK:$ENV_CB_SNYK_TOKEN
-    Snyk_Org: $ENV_CB_SNYK:$ENV_CB_SNYK_ORG
     
 phases:
   install:
