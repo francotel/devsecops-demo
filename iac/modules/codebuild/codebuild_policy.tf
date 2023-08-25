@@ -79,10 +79,28 @@ data "aws_iam_policy_document" "policy" {
       "ecr:InitiateLayerUpload",
       "ecr:PutImage",
       "ecr:UploadLayerPart",
-      "ecr:*"
     ]
     resources = [
       "*"
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "eks:DescribeCluster"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "sts:AssumeRole"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+
 }
