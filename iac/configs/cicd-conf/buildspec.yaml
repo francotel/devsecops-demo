@@ -35,4 +35,4 @@ phases:
       #- aws sts get-caller-identity
       - aws eks update-kubeconfig --name $ENV_EKS_CLUSTER_NAME #--role-arn arn:aws:iam::962542038213:role/codebuild-role-devsecops-demo
       - kubectl get pods --all-namespaces
-      - kubectl apply -f .
+      - kubectl destroy -f .
